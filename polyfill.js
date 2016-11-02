@@ -89,7 +89,7 @@ var addModuleTools = function(registry, dynamicImport){
       }
     };
   };
-}
+};
 
 // TODO saving this space in case I want to support multiple workers
 
@@ -101,7 +101,7 @@ var execute = function({ url, code, map }){
   }
 
    __scriptTypeModuleEval(code);
-}
+};
 
 const prefix = '\n//# source' + 'MappingURL=data:application/json;base64,';
 
@@ -115,7 +115,7 @@ class ModuleTree {
     this.fetchPromise = new Promise((resolve, reject) => {
       this.resolve = resolve;
       this.reject = reject;
-    })
+    });
   }
 
   increment() {
@@ -320,7 +320,7 @@ var Registry = class {
       moduleScript.instantiate();
     }
   }
-}
+};
 
 function getValue(moduleScript, name, par) {
   return function(){
