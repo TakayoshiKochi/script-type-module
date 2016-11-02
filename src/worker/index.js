@@ -15,7 +15,13 @@ onmessage = function(ev){
 
   let fetchPromise = msg.src ? Promise.resolve(msg.src)
     : fetch(url).then(function(resp){
-      return resp.text();
+      if (resp.headers.get('Content-Type') == 'text/html') {
+        return resp.text().then(function(html) {
+          return 'export default function() { return `' + html + '`;}';
+        });
+      } else {
+        return resp.text();
+      }
     });
 
   fetchPromise
