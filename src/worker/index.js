@@ -8,6 +8,35 @@ import {
 } from './module-tools.js';
 import './source-maps.js';
 
+// Convert script in a HTML module to a valid ES module,
+// |moduleHTML| available as a DocumentFragment to the ES module.
+function convertHTMLModule2ESModule(src) {
+  // TODO: Use proper HTML parser to do this?
+  // TODO: Only one script tag is taken care of.
+  let scriptStart = src.search(/<script type="module-polyfill">/);
+  let scriptEnd = src.search(/<\/script>/);
+  if (scriptStart >= 0 && scriptEnd > scriptStart) {
+    let preHTML = src.substr(0, scriptStart);
+    let script = src.substr(scriptStart + 31, scriptEnd - (scriptStart + 31));
+    let postHTML = src.substr(scriptEnd + 9);
+    return `let moduleHTML = (function() {
+              let frag = new DocumentFragment();
+              let div = document.createElement('div');
+              div.innerHTML = \`${preHTML + postHTML}\`;
+              div.childNodes.forEach(node => frag.append(node));
+              return frag;
+            })();` + script;
+  }
+  // Fall back to a default export function returning DocumentFragment.
+  return `export default function() {
+            let frag = new DocumentFragment();
+            let div = document.createElement('div');
+            div.innerHTML = \`${src}\`;
+            div.childNodes.forEach(node => frag.append(node));
+            return frag;
+          };`;
+}
+
 onmessage = function(ev){
   let msg = ev.data;
   let url = msg.url;
@@ -17,13 +46,7 @@ onmessage = function(ev){
     : fetch(url).then(function(resp){
       if (resp.headers.get('Content-Type') == 'text/html') {
         return resp.text().then(function(html) {
-          return `export default function() {
-                    let frag = new DocumentFragment();
-                    let div = document.createElement('div');
-                    div.innerHTML = \`${html}\`;
-                    div.childNodes.forEach(node => frag.append(node));
-                    return frag;
-                  }`;
+          return { src: html, type: 'html' };
         });
       } else {
         return resp.text();
@@ -32,6 +55,11 @@ onmessage = function(ev){
 
   fetchPromise
   .then(function(src){
+    let type = 'script';
+    if (typeof(src) === 'object') {
+      type = src.type;
+      src = convertHTMLModule2ESModule(src.src);
+    }
     let state = {
       anonCount: 0,
       deps: [],
@@ -68,12 +96,16 @@ onmessage = function(ev){
     let code = includeSourceMaps ? result.code : result;
     let map = includeSourceMaps ? result.map.toJSON() : undefined;
 
+    if (type === 'script')
+      console.log(code);
+
     return {
       code: code,
       deps: state.deps,
       exports: state.exports,
       exportStars: state.exportStars,
-      map: map
+      map: map,
+      type: type
     };
   })
   .then(function(res){
@@ -84,7 +116,8 @@ onmessage = function(ev){
       deps: res.deps,
       url: url,
       src: res.code,
-      map: res.map
+      map: res.map,
+      xtype: res.type
     });
   })
   .then(null, function(err){
