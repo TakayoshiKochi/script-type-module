@@ -17,7 +17,13 @@ onmessage = function(ev){
     : fetch(url).then(function(resp){
       if (resp.headers.get('Content-Type') == 'text/html') {
         return resp.text().then(function(html) {
-          return 'export default function() { return `' + html + '`;}';
+          return `export default function() {
+                    let frag = new DocumentFragment();
+                    let div = document.createElement('div');
+                    div.innerHTML = \`${html}\`;
+                    div.childNodes.forEach(node => frag.append(node));
+                    return frag;
+                  }`;
         });
       } else {
         return resp.text();
