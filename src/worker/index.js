@@ -28,10 +28,18 @@ function convertHTMLModule2ESModule(html) {
   }
 
   let preamble = `let moduleHTML = (function() {
-                    let container = document.createElement('template');
-                    container.innerHTML = \`${html}\`;
-                    return container.content;
-                  })();`
+                    let div = document.createElement('div');
+                    div.innerHTML = \`${html}\`;
+
+                    // For custom elements' constructor and connectedCallback
+                    // to be called.
+                    document.body.appendChild(div);
+                    document.body.removeChild(div);
+
+                    let frag = document.createDocumentFragment();
+                    div.childNodes.forEach(node => frag.append(node));
+                    return frag;
+                  })();`;
   return preamble + script;
 }
 
