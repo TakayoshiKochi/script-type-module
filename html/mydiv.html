@@ -1,0 +1,25 @@
+<template>
+  <style>
+    :host { display: block }
+  </style>
+  Customized <slot></slot>
+</template>
+
+<script type="module-polyfill">
+class MyDiv extends HTMLElement {
+  constructor() {
+    super();
+    console.log('constructed');
+  }
+  connectedCallback() {
+    if (this.shadowRoot)
+      return;
+    let root = this.attachShadow({mode: 'open'});
+    let tmpl = moduleHTML.querySelector('template');
+    root.appendChild(document.importNode(tmpl.content, true));
+    console.log('connected');
+  }
+}
+
+window.customElements.define('my-div', MyDiv);
+</script>

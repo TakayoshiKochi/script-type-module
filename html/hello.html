@@ -1,5 +1,17 @@
-<div>Hello, Module</div>
+<my-div>Hello, Module!</my-div>
 <script type="module-polyfill">
+// imports <my-div> definition.
+//The DocumentFragment doesn't make much sense.
+import mydiv from './mydiv.html';
+
+// exports this HTML as a document fragment.
 export default moduleHTML;
+
+let mydiv = moduleHTML.querySelector('my-div');
+if (mydiv.matches(':defined')) {
+  console.log('<my-div> is already upgraded.');
+} else {
+  console.log('<my-div> is not upgraded.');
+}
 </script>
-<div>Hello, World!</div>
+<my-div>Hello, World!</my-div>
