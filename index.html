@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HTML modules test</title>
+<script src="./polyfill.js"></script>
+</head>
+<body>
+  <div id="host"></div>
+</body>
+<script type="module-polyfill">
+import html from './html/hello.html';
+host.appendChild(html);
+</script>
+</html>
