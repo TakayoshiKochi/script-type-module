@@ -10,31 +10,29 @@ import './source-maps.js';
 
 // Convert script in a HTML module to a valid ES module,
 // |moduleHTML| available as a DocumentFragment to the ES module.
-function convertHTMLModule2ESModule(src) {
+function convertHTMLModule2ESModule(html) {
+  let script = 'export default moduleHTML;';
+
   // TODO: Use proper HTML parser to do this?
   // TODO: Only one script tag is taken care of.
-  let scriptStart = src.search(/<script type="module-polyfill">/);
-  let scriptEnd = src.search(/<\/script>/);
+  let scriptStart = html.search(/<script type="module-polyfill">/);
+  let scriptEnd = html.search(/<\/script>/);
+
   if (scriptStart >= 0 && scriptEnd > scriptStart) {
-    let preHTML = src.substr(0, scriptStart);
-    let script = src.substr(scriptStart + 31, scriptEnd - (scriptStart + 31));
-    let postHTML = src.substr(scriptEnd + 9);
-    return `let moduleHTML = (function() {
-              let frag = new DocumentFragment();
-              let div = document.createElement('div');
-              div.innerHTML = \`${preHTML + postHTML}\`;
-              div.childNodes.forEach(node => frag.append(node));
-              return frag;
-            })();` + script;
+    let preHTML = html.substr(0, scriptStart);
+    // strlen(<script type="module-polyfill">) = 31
+    script = html.substr(scriptStart + 31, scriptEnd - (scriptStart + 31));
+    // strlen(</script>) = 9
+    let postHTML = html.substr(scriptEnd + 9);
+    html = preHTML + postHTML;
   }
-  // Fall back to a default export function returning DocumentFragment.
-  return `export default function() {
-            let frag = new DocumentFragment();
-            let div = document.createElement('div');
-            div.innerHTML = \`${src}\`;
-            div.childNodes.forEach(node => frag.append(node));
-            return frag;
-          };`;
+
+  let preamble = `let moduleHTML = (function() {
+                    let container = document.createElement('template');
+                    container.innerHTML = \`${html}\`;
+                    return container.content;
+                  })();`
+  return preamble + script;
 }
 
 onmessage = function(ev){
@@ -44,7 +42,7 @@ onmessage = function(ev){
 
   let fetchPromise = msg.src ? Promise.resolve(msg.src)
     : fetch(url).then(function(resp){
-      if (resp.headers.get('Content-Type') == 'text/html') {
+      if (resp.headers.get('Content-Type').startsWith('text/html')) {
         return resp.text().then(function(html) {
           return { src: html, type: 'html' };
         });
@@ -95,9 +93,6 @@ onmessage = function(ev){
 
     let code = includeSourceMaps ? result.code : result;
     let map = includeSourceMaps ? result.map.toJSON() : undefined;
-
-    if (type === 'script')
-      console.log(code);
 
     return {
       code: code,
