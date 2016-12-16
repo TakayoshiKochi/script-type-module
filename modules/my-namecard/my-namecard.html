@@ -10,12 +10,19 @@
     
     border-style: solid;
     border-width: 3px;
-    border-color: red;
+    border-color: lightblue;
  
    font-size: 36px;
   }
   .border:hover {
     background-color: #ffeeee;
+  }
+
+  :host(:focus) {
+    outline: none;
+  }
+  :host(:focus) .border {
+    background-color: #ffff80;
   }
   </style>
   <div class="border">
@@ -26,10 +33,10 @@
 // import frag from 'magic-html-fragment';
 let frag = moduleHTML;  // workaround
 
-class ModuleNamecard extends HTMLElement {
+class MyNamecard extends HTMLElement {
   constructor() {
     super();
-    console.log('<module-namecard> constructor.');
+    console.log('<my-namecard> constructor.');
   }
   connectedCallback() {
     if (this.shadowRoot)
@@ -37,9 +44,20 @@ class ModuleNamecard extends HTMLElement {
     let root = this.attachShadow({mode: 'open'});
     let tmpl = frag.querySelector('template');
     root.appendChild(document.importNode(tmpl.content, true));
-    console.log('<module-namecard> connected.');
+
+    let host = this;
+    // Allow editing the content on click.
+    host.addEventListener('click', (e) => {
+      host.setAttribute('contentEditable', 'true');
+      document.execCommand('selectAll');
+    });
+    host.addEventListener('blur', (e) => {
+      host.removeAttribute('contentEditable');
+    });
+
+    console.log('<my-namecard> connected.');
   }
 }
 
-window.customElements.define('module-namecard', ModuleNamecard);
+window.customElements.define('my-namecard', MyNamecard);
 </script>

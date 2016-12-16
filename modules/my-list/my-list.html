@@ -8,22 +8,22 @@
   </style>
   <div class="list">
     <slot></slot>
-    <decorated-button>More member...</decorated-button>
+    <decorated-button>Click to add...</decorated-button>
   </div>
 </template>
 <script type="module-polyfill">
 //import frag from 'magic-html-fragment';
 let frag = moduleHTML;  // workaround
 
-// TODO: This can be <script type="module-polyfill" src=...> at the top of this
-// file, but due to "one script" restriction, dependency has to be written this
-// way.
+// Open question:
+// This can be <script type="module-polyfill" src=...> at the top of this file,
+// but due to "one script" restriction, dependency has to be written this way.
 import '../decorated-button/decorated-button.html';
 
-class ModuleList extends HTMLElement {
+class MyList extends HTMLElement {
   constructor() {
     super();
-    console.log('<module-list> constructor.');
+    console.log('<my-list> constructor.');
   }
   connectedCallback() {
     if (this.shadowRoot)
@@ -31,14 +31,17 @@ class ModuleList extends HTMLElement {
     let root = this.attachShadow({mode: 'open'});
     let tmpl = frag.querySelector('template');
     root.appendChild(document.importNode(tmpl.content, true));
-    console.log('<module-list> connected.');
+    console.log('<my-list> connected.');
 
     let button = root.querySelector('decorated-button');
+    // Allow list element addition on click event.
     button.addEventListener('click', (e) => {
-      window.alert('You edit this HTML!');
+      let card = document.createElement('my-namecard');
+      card.textContent = 'Click to edit...';
+      this.appendChild(card);
     });
   }
 }
 
-window.customElements.define('module-list', ModuleList);
+window.customElements.define('my-list', MyList);
 </script>

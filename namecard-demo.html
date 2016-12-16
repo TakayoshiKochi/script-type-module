@@ -2,13 +2,15 @@
 <html>
 <head>
 <title>HTML modules test</title>
-<script src="./polyfill.js"></script>
 <style>
-module-list:not(:defined) { display: none; }
+/* prevent FOUC */
+my-list:not(:defined) { display: none; }
 </style>
+<!-- load polyfill.js before any use of ES/HTML modules -->
+<script src="./polyfill.js"></script>
 <script type="module-polyfill">
-import './modules/module-list/module-list.html';
-import './modules/module-namecard/module-namecard.html';
+import './modules/my-list/my-list.html';
+import './modules/my-namecard/my-namecard.html';
 </script>
 </head>
 <body>
@@ -18,13 +20,17 @@ import './modules/module-namecard/module-namecard.html';
     and can have dependency.
   </div>
   <div>
-    With modules loaded, you see 3 name cards, in each of which
+    Once modules are loaded, you see 3 name cards, in each of which
     names are capitalized, with an additional button at the bottom.
+    name cards, button, list are all components.
   </div>
-  <module-list>
-    <module-namecard>yamada taro</module-namecard>
-    <module-namecard>sato hanako</module-namecard>
-    <module-namecard>takayoshi kochi</module-namecard>
-  </module-list>
+  <!-- my-list is defined in my-list.html module. -->
+  <my-list>
+    <!-- my-namecard is defined in my-namecard.html module. -->
+    <my-namecard>yamada taro</my-namecard>
+    <my-namecard>sato hanako</my-namecard>
+    <my-namecard>takayoshi kochi</my-namecard>
+    <!-- you'll see "Click to add..." button here (added by my-list component) -->
+  </my-list>
 </body>
 </html>

@@ -25,6 +25,12 @@
     top: 3px;
     left: 3px;
   }
+  :host(:focus) {
+    outline: none;
+  }
+  :host(:focus) .decorated {
+    outline: blue inset 3px;
+  }
   </style>
   <div id="button" class="decorated">
     <slot></slot>
@@ -49,6 +55,7 @@ class DecoratedButton extends HTMLElement {
     root.appendChild(document.importNode(tmpl.content, true));
 
     let host = this;
+    host.setAttribute('tabindex', '0');
     let button = root.querySelector('#button');
     button.addEventListener('click', (e) => {
       console.log('decolated button clicked');
