@@ -1,17 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>HTML modules test</title>
+<title>HTML modules (experimental) polyfill demo</title>
 <script src="./polyfill.js"></script>
 </head>
 <body>
-  <div>
-    If HTML modules loads properly, you will see 2 lines below this:
-  </div>
-  <div id="host"></div>
+  <ul>
+    <li><a href="namecard-demo.html">Namecard demo</a>
+    <li><a href="module-test.html">Simple module test</a>
+  </ul>
 </body>
-<script type="module-polyfill">
-import html from './html/hello.html';
-host.appendChild(html);
-</script>
 </html>
