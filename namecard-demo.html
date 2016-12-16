@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HTML modules test</title>
+<script src="./polyfill.js"></script>
+<script type="module-polyfill">
+import './modules/module-list/module-list.html';
+import './modules/module-namecard/module-namecard.html';
+</script>
+</head>
+<body>
+  <div>
+    With modules loaded, you see 3 name cards, in each of which
+    names are capitalized, with an additional button at the bottom.
+  </div>
+  <module-list>
+    <module-namecard>yamada taro</module-namecard>
+    <module-namecard>sato hanako</module-namecard>
+    <module-namecard>takayoshi kochi</module-namecard>
+  </module-list>
+  <div>
+    This demonstrates how component definitions can be loaded as
+    HTML modules.  Each component definition can be put in one HTML file
+    and can have dependency.
+  </div>
+</body>
+</html>

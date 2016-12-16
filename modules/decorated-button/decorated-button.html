@@ -1,0 +1,61 @@
+<template>
+  <style>
+   :host { display: block; }
+  .decorated {
+    -webkit-user-select: none;
+    text-transform: none;
+    font-size: 36px;
+
+    background-color: #cccccc;
+    width: 100%;
+    margin: 20px;
+    padding: 5px;
+
+    border-style: outset;
+    border-width: 3px;
+    border-color: #888888;
+
+    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+  }
+  .decorated:hover {
+    background-color: #eeeeee;
+  }
+  .decorated:active {
+    position: relative;
+    top: 3px;
+    left: 3px;
+  }
+  </style>
+  <div id="button" class="decorated">
+    <slot></slot>
+  </div>
+</template>
+<script type="module-polyfill">
+//import frag from 'magic-html-fragment';
+let frag = moduleHTML;  // workaround
+// Re-export the fragment
+export default frag;
+
+class DecoratedButton extends HTMLElement {
+  constructor() {
+    super();
+    console.log('<decorated-button> constructor.');
+  }
+  connectedCallback() {
+    if (this.shadowRoot)
+      return;
+    let root = this.attachShadow({mode: 'open'});
+    let tmpl = frag.querySelector('template');
+    root.appendChild(document.importNode(tmpl.content, true));
+
+    let host = this;
+    let button = root.querySelector('#button');
+    button.addEventListener('click', (e) => {
+      console.log('decolated button clicked');
+    });
+    console.log('<decorated-button> connected.');
+  }
+}
+
+window.customElements.define('decorated-button', DecoratedButton);
+</script>
