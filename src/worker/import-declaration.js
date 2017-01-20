@@ -7,6 +7,29 @@ export default function(node, state){
   // TODO better namespace naming algo
   let namespaceName = getNamespaceName(specifiers, state);
 
+  if (source.type === 'Literal' && source.value === 'magic-html-fragment') {
+    // assert(specifiers.length === 1);
+    // assert(specifiers[0].type === 'ImportDefaultSpecifier');
+    node.type = 'VariableDeclaration';
+    node.kind = 'const';
+    node.declarations = [
+      {
+        type: 'VariableDeclarator',
+        id: {
+          type: 'Identifier',
+          name: specifiers[0].local.name
+        },
+        init: {
+          type: 'Identifier',
+          name: '__moduleHTML'
+        }
+      }
+    ];
+    delete node.specifiers;
+    delete node.source;
+    return;
+  }
+
   state.deps.push(new URL(source.value, url).toString());
 
   specifiers.forEach(function(node){
