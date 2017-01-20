@@ -8982,6 +8982,29 @@ var ImportDeclaration = function(node, state){
   // TODO better namespace naming algo
   let namespaceName = getNamespaceName(specifiers, state);
 
+  if (source.type === 'Literal' && source.value === 'magic-html-fragment') {
+    // assert(specifiers.length === 1);
+    // assert(specifiers[0].type === 'ImportDefaultSpecifier');
+    node.type = 'VariableDeclaration';
+    node.kind = 'const';
+    node.declarations = [
+      {
+        type: 'VariableDeclarator',
+        id: {
+          type: 'Identifier',
+          name: specifiers[0].local.name
+        },
+        init: {
+          type: 'Identifier',
+          name: '__moduleHTML'
+        }
+      }
+    ];
+    delete node.specifiers;
+    delete node.source;
+    return;
+  }
+
   state.deps.push(new URL(source.value, url).toString());
 
   specifiers.forEach(function(node){
@@ -10855,30 +10878,33 @@ self.sourceMap = { SourceNode: SourceNode_1 };
 // Convert script in a HTML module to a valid ES module,
 // |moduleHTML| available as a DocumentFragment to the ES module.
 function convertHTMLModule2ESModule(html) {
-  let script = 'export default moduleHTML;';
+  let script = 'export default __moduleHTML;';
 
-  // TODO: Use proper HTML parser to do this?
-  // TODO: Only one script tag is taken care of.
+  // TODO: Use proper HTML parser to do this, instead of regexp.
+  // TODO: Only the first script tag is taken care of.
   let scriptStart = html.search(/<script type="module-polyfill">/);
   let scriptEnd = html.search(/<\/script>/);
 
   if (scriptStart >= 0 && scriptEnd > scriptStart) {
-    let preHTML = html.substr(0, scriptStart);
     // strlen(<script type="module-polyfill">) = 31
     script = html.substr(scriptStart + 31, scriptEnd - (scriptStart + 31));
+
+    // TODO: Do we need to exclude the <script type="module-polyfill">?
+    // let preHTML = html.substr(0, scriptStart);
     // strlen(</script>) = 9
-    let postHTML = html.substr(scriptEnd + 9);
-    html = preHTML + postHTML;
+    // let postHTML = html.substr(scriptEnd + 9);
+    // html = preHTML + postHTML;
   }
 
-  let preamble = `let moduleHTML = (function() {
-                    let div = document.createElement('div');
-                    div.innerHTML = \`${html}\`;
+  const preamble = `const __moduleHTML = (function() {
+                      let div = document.createElement('div');
+                      div.innerHTML = \`${html}\`;
 
-                    let frag = document.createDocumentFragment();
-                    div.childNodes.forEach(node => frag.append(node));
-                    return frag;
-                  })();`;
+                      let frag = document.createDocumentFragment();
+                      div.childNodes.forEach(node => frag.append(node));
+                      return frag;
+                    })();`;
+
   return preamble + script;
 }
 
