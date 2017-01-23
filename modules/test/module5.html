@@ -1,0 +1,24 @@
+<template>
+  <div id="message"></div>
+</template>
+<script type="module-polyfill">
+import frag from 'magic-html-fragment';
+
+class MyElement extends HTMLElement {
+  constructor() {
+    super();
+  }
+  connectedCallback() {
+    if (this.shadowRoot)
+      return;
+    let root = this.attachShadow({mode: 'open'});
+    let tmpl = frag.querySelector('template');
+    root.appendChild(document.importNode(tmpl.content, true));
+
+    root.querySelector('#message').textContent =
+      'test5 ok - custom element definition is loaded and works.';
+  }
+}
+
+window.customElements.define('my-element', MyElement);
+</script>

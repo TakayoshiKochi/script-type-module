@@ -1,0 +1,11 @@
+<div>test3 ok - out-of-line HTML module can be loaded.</div>
+<script type="module-polyfill">
+import frag from 'magic-html-fragment';
+
+// Remove this script from DocumentFragment so that it will not
+// be executed again after appendChild().
+let script = frag.querySelector('script[type=module-polyfill]');
+script.remove();
+
+document.body.appendChild(frag);
+</script>

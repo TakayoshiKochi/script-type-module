@@ -1,0 +1,7 @@
+<div>test2 ok - DocumentFragment can be imported from within HTML module.</div>
+<script type="module-polyfill">
+import frag from 'magic-html-fragment';
+export default function() {
+  document.body.appendChild(frag.querySelector('div'));
+}
+</script>
