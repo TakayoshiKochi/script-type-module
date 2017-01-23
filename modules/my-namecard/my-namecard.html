@@ -7,12 +7,12 @@
     padding: 5px;
 
     box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
-    
+
     border-style: solid;
     border-width: 3px;
     border-color: lightblue;
- 
-   font-size: 36px;
+
+    font-size: 36px;
   }
   .border:hover {
     background-color: #ffeeee;
@@ -30,8 +30,7 @@
   </div>
 </template>
 <script type="module-polyfill">
-// import frag from 'magic-html-fragment';
-let frag = moduleHTML;  // workaround
+import frag from 'magic-html-fragment';
 
 class MyNamecard extends HTMLElement {
   constructor() {
