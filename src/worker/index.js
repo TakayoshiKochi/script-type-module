@@ -13,14 +13,20 @@ import './source-maps.js';
 function convertHTMLModule2ESModule(html) {
   let script = 'export default __moduleHTML;';
 
+  // Escape HTML for template literal.
+  let escapedHTML = html.replace(/\\/g, '\\\\')
+                        .replace(/`/g, '\\`')
+                        .replace(/\${/g, '\\${');
+
   // TODO: Use proper HTML parser to do this, instead of regexp.
   // TODO: Only the first script tag is taken care of.
   let scriptStart = html.search(/<script type="module-polyfill">/);
-  let scriptEnd = html.search(/<\/script>/);
+  let scriptEnd = escapedHTML.search(/<\/script>/);
 
   if (scriptStart >= 0 && scriptEnd > scriptStart) {
     // strlen(<script type="module-polyfill">) = 31
-    script = html.substr(scriptStart + 31, scriptEnd - (scriptStart + 31));
+    script = escapedHTML.substr(scriptStart + 31,
+                                scriptEnd - (scriptStart + 31));
 
     // TODO: Do we need to exclude the <script type="module-polyfill">?
     // let preHTML = html.substr(0, scriptStart);
@@ -31,8 +37,7 @@ function convertHTMLModule2ESModule(html) {
 
   const preamble = `const __moduleHTML = (function() {
                       let div = document.createElement('div');
-                      div.innerHTML = \`${html}\`;
-
+                      div.innerHTML = \`${escapedHTML}\`;
                       let frag = document.createDocumentFragment();
                       div.childNodes.forEach(node => frag.append(node));
                       return frag;
